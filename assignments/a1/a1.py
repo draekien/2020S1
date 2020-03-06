@@ -1,10 +1,19 @@
+import collections
 import nltk
+import operator
+import pandas as pd
 import numpy as np
+
+from collections import Counter
+from nltk.stem.porter import PorterStemmer
+from nltk.tokenize import word_tokenize
+
 nltk.download('punkt')
 nltk.download('gutenberg')
 
 # Task 1 (1 mark)
-import collections
+
+
 def get_top_stems(document, n, stopwords):
     """Return a list of the n most frequent stems, sorted by frequency in descending 
     order. Make sure that the list of stems returned is lowercased, and that the 
@@ -16,9 +25,26 @@ def get_top_stems(document, n, stopwords):
     >>> get_top_stems(emma, 10, my_stopwords)
     ['mr.', "'s", 'emma', 'could', 'would', 'mrs.', 'miss', 'must', 'harriet', 'much']
     """
-    return []
+    porter = PorterStemmer()
+    words = word_tokenize(document)
+
+    lower_case_stopwords = [w.lower() for w in stopwords]
+    filtered_words = [
+        w for w in words if w.lower() not in lower_case_stopwords]
+
+    stems = []
+    for word in filtered_words:
+        stems.append(porter.stem(word))
+
+    stem_frequency = nltk.FreqDist(stems)
+    stem_frequency_list = list(stem_frequency.items())
+    stem_frequency_list.sort(key=operator.itemgetter(1), reverse=True)
+    top_stems = [key for key, value in stem_frequency_list]
+    return top_stems[:n]
 
 # Task 2 (1 mark)
+
+
 def sentence_to_set(sentence, list_of_stems):
     """Return the set of all stems in a sentence that match the list of stems.
     Make sure that the resulting stems are lowercased, and that the comparison 
@@ -30,21 +56,33 @@ def sentence_to_set(sentence, list_of_stems):
     >>> sentence_to_set(long_sentence, ["seem", "chapter", "emma", "the"]) == {'the', 'emma', 'seem'}
     True
     """
-    return {}
+    porter = PorterStemmer()
+    words = word_tokenize(sentence)
+
+    lower_case_list_of_stems = [s.lower() for s in list_of_stems]
+    stems = []
+    for word in words:
+        stems.append(porter.stem(word).lower())
+
+    filtered_stems = [s for s in stems if s in lower_case_list_of_stems]
+
+    return set(filtered_stems)
 
 # The following function uses your definition of sentence_to_set; do not modify it.
 # You will use it in the following tasks.
+
+
 def compute_jaccard(sentence1, sentence2, list_of_stems):
     """Return the jaccard similarity of two sentences. Refer to this link for the
     formula of the jaccard similarity: https://en.wikipedia.org/wiki/Jaccard_index
     To compute the jaccard similarity, call to your definition of sentence_to_set in
     order to convert a sentence into a set of stems.
     >>> compute_jaccard("This is sentence 1.", "This is another sentence 2.", ['thi', 'sentenc', 'anoth'])
-    0.8
+    0.666...
     >>> long_sentence1 = "Emma Woodhouse, handsome, clever, and rich, with a comfortable home and happy disposition, seemed to unite some of the best blessings of existence"
     >>> long_sentence2 = "Emma Woodhouse, handsome, smart, and not poor, with a cosy house and happy disposition, seemed to unite some of the best blessings of existence"
     >>> compute_jaccard(long_sentence1, long_sentence2, ['emma', 'clever', 'seem', 'bless'])
-    0.857...
+    0.75
     """
     words1 = sentence_to_set(sentence1, list_of_stems)
     words2 = sentence_to_set(sentence2, list_of_stems)
@@ -54,6 +92,8 @@ def compute_jaccard(sentence1, sentence2, list_of_stems):
     return len(words1 & words2)/len(words1 | words2)
 
 # Task 3 (1 mark)
+
+
 def get_transition_matrix(list_sentences, list_of_stems, threshold=0.5):
     """Return the transition matrix as a numpy array. To compute the transition
     matrix, use compute_jaccard to find the similarity between two sentences. 
@@ -80,9 +120,42 @@ def get_transition_matrix(list_sentences, list_of_stems, threshold=0.5):
            [0.5 , 0.  , 0.5 , 0.25],
            [0.  , 0.  , 0.  , 0.25]])
     """
-    return np.array()
+
+    i = 0
+    j = 0
+    arr = np.array([])
+
+    while i < len(list_sentences) - 1:
+        linked = []
+        while j < len(list_sentences) - 1:
+            if i == j:
+                linked.append(0)
+            else:
+                jaccard_score = compute_jaccard(
+                    list_sentences[i], list_sentences[j], list_of_stems)
+                if jaccard_score >= threshold:
+                    linked.append(1.)
+                else:
+                    linked.append(0)
+            j += 1
+        counts = Counter(linked)
+        if counts[1.] == 0:
+            scaled_links = linked
+        else:
+            scaled_links = [x/counts[1.] for x in linked]
+        if arr.size == 0:
+            arr = np.array([scaled_links])
+        else:
+            # TODO: fix this error "all the input array dimensions except for the concatenation axis must match exactly"
+            arr = np.append(arr, [scaled_links], axis=0)
+        i += 1
+
+    transition_matrix = arr.transpose()
+    return transition_matrix
 
 # Task 4 (1 mark)
+
+
 def compute_pagerank(list_sentences, list_of_stems, threshold=0.5, damping_factor=0.85, epsylon=0.01):
     """Return the pagerank of the list of sentences.
     >>> s1 = "This is sentence 1."
@@ -100,10 +173,23 @@ def compute_pagerank(list_sentences, list_of_stems, threshold=0.5, damping_facto
            [0.230...],
            [0.288...],
            [0.230...]])
-"""
-    return np.array()
+    """
+    A = get_transition_matrix(list_sentences, list_of_stems, threshold)
+    M = damping_factor * A + 0.15 * (1./4. * np.ones((4, 4)))
+
+    iterations = 0
+    PR = 1./4. * np.ones((4, 1))
+    oldPR = np.zeros((4.1))
+    while max(np.abs(oldPR-PR)) > epsylon:
+        oldPR = PR
+        PR = np.dot(M, PR)
+        iterations += 1
+    print(PR)
+    return PR
 
 # Task 5 (1 mark)
+
+
 def summarise(text, list_of_stems, N=3, threshold=0.5, damping_factor=0.85, epsylon=0.01):
     """Return the N most important sentences according to the PageRank algorithm. The sentences must be returned
     in the order of occurrence in the original list of sentences. Your program needs to split the original text into
@@ -133,12 +219,18 @@ def summarise(text, list_of_stems, N=3, threshold=0.5, damping_factor=0.85, epsy
     It was Miss
     Taylor's loss which first brought grief.
     """
+    sents = nltk.sent_tokenize(text)
+    PR = compute_pagerank(sents, list_of_stems, threshold,
+                          damping_factor, epsylon)
+    print(PR)
     return []
+
 
 # DO NOT MODIFY THE CODE BELOW
 if __name__ == "__main__":
     nltk.download('stopwords')
     import doctest
     emma = nltk.corpus.gutenberg.raw('austen-emma.txt')
-    my_stopwords = nltk.corpus.stopwords.words('english') + [',', '.', ';', "''", ':', '``', '?', '--', '!']
+    my_stopwords = nltk.corpus.stopwords.words(
+        'english') + [',', '.', ';', "''", ':', '``', '?', '--', '!']
     doctest.testmod(optionflags=doctest.ELLIPSIS)
