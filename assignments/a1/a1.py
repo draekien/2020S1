@@ -4,7 +4,7 @@ import operator
 import pandas as pd
 import numpy as np
 
-from collections import Counter
+from collections import Counter, ChainMap
 from nltk.stem.porter import PorterStemmer
 from nltk.tokenize import word_tokenize
 
@@ -123,32 +123,33 @@ def get_transition_matrix(list_sentences, list_of_stems, threshold=0.5):
 
     i = 0
     j = 0
-    arr = np.array([])
+    arr = []
 
-    while i < len(list_sentences) - 1:
-        linked = []
-        while j < len(list_sentences) - 1:
-            if i == j:
-                linked.append(0)
+    while i < len(list_sentences):
+        linked = np.array([])
+        while j < len(list_sentences):
+            # if i == j:
+            #     linked = np.append(linked, 0)
+            # else:
+            jaccard_score = compute_jaccard(
+                list_sentences[i], list_sentences[j], list_of_stems)
+
+            if jaccard_score >= threshold:
+                linked = np.append(linked, 1.)
             else:
-                jaccard_score = compute_jaccard(
-                    list_sentences[i], list_sentences[j], list_of_stems)
-                if jaccard_score >= threshold:
-                    linked.append(1.)
-                else:
-                    linked.append(0)
+                linked = np.append(linked, 0)
             j += 1
         counts = Counter(linked)
         if counts[1.] == 0:
-            scaled_links = linked
+            scaled_links = [1/len(linked) for x in linked]
         else:
             scaled_links = [x/counts[1.] for x in linked]
-        if arr.size == 0:
+        if len(arr) == 0:
             arr = np.array([scaled_links])
         else:
-            # TODO: fix this error "all the input array dimensions except for the concatenation axis must match exactly"
             arr = np.append(arr, [scaled_links], axis=0)
         i += 1
+        j = 0
 
     transition_matrix = arr.transpose()
     return transition_matrix
@@ -174,17 +175,18 @@ def compute_pagerank(list_sentences, list_of_stems, threshold=0.5, damping_facto
            [0.288...],
            [0.230...]])
     """
+    num_sentences = len(list_sentences)
     A = get_transition_matrix(list_sentences, list_of_stems, threshold)
-    M = damping_factor * A + 0.15 * (1./4. * np.ones((4, 4)))
+    M = damping_factor * A + (1 - damping_factor) * \
+        (1./num_sentences * np.ones((num_sentences, num_sentences)))
 
     iterations = 0
-    PR = 1./4. * np.ones((4, 1))
-    oldPR = np.zeros((4.1))
+    PR = 1./num_sentences * np.ones((num_sentences, 1))
+    oldPR = np.zeros((num_sentences, 1))
     while max(np.abs(oldPR-PR)) > epsylon:
         oldPR = PR
         PR = np.dot(M, PR)
         iterations += 1
-    print(PR)
     return PR
 
 # Task 5 (1 mark)
@@ -222,8 +224,16 @@ def summarise(text, list_of_stems, N=3, threshold=0.5, damping_factor=0.85, epsy
     sents = nltk.sent_tokenize(text)
     PR = compute_pagerank(sents, list_of_stems, threshold,
                           damping_factor, epsylon)
-    print(PR)
-    return []
+    rankings = map(lambda x, y: [x, y[0]], sents, PR)
+    unsorted_rankings_list = list(rankings)
+    sorted_rankings_list = [x for x in unsorted_rankings_list]
+    sorted_rankings_list.sort(key=lambda x: x[1])
+    highest_sents = []
+    for i in range(N):
+        j = (i + 1) * -1
+        highest_sents.append(sorted_rankings_list[j][0])
+    intersect = [sentence for sentence in sents if sentence in highest_sents]
+    return intersect
 
 
 # DO NOT MODIFY THE CODE BELOW
