@@ -143,6 +143,8 @@ def get_transition_matrix(list_sentences, list_of_stems, threshold=0.5):
 
         # count how many links we have (ones) in the linked array
         # then divide each link by this count if count is not 0
+        # if we have dangling node replace with 1 divided by number
+        # of links
         counts = Counter(linked)
         scaled_links = ([1/len(linked) for x in linked]
                         if counts[1.] == 0
