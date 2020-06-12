@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<product version="1.7" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.bom.gov.au/schema/v1.7/product.xsd">
+    <amoc>
+        <source>
+            <sender>Australian Government Bureau of Meteorology</sender>
+            <region>New South Wales</region>
+            <office>NSWRO</office>
+            <copyright>http://www.bom.gov.au/other/copyright.shtml</copyright>
+            <disclaimer>http://www.bom.gov.au/other/disclaimer.shtml</disclaimer>
+        </source>
+        <identifier>IDN10031</identifier>
+        <issue-time-utc>2020-04-12T18:30:00Z</issue-time-utc>
+        <issue-time-local tz="EST">2020-04-13T04:30:00+10:00</issue-time-local>
+        <sent-time>2020-04-12T18:30:05Z</sent-time>
+        <expiry-time>2020-04-22T18:30:00Z</expiry-time>
+        <validity-bgn-time-local tz="EST">2020-04-13T04:30:05+10:00</validity-bgn-time-local>
+        <validity-end-time-local tz="EST">2020-04-16T23:59:59+10:00</validity-end-time-local>
+        <next-routine-issue-time-utc>2020-04-13T06:30:00Z</next-routine-issue-time-utc>
+        <next-routine-issue-time-local tz="EST">2020-04-13T16:30:00+10:00</next-routine-issue-time-local>
+        <status>O</status>
+        <service>WSP</service>
+        <sub-service>FST</sub-service>
+        <product-type>F</product-type>
+        <phase>NEW</phase>
+    </amoc>
+    <forecast>
+        <area aac="NSW_FA001" description="New South Wales" type="region">
+            <forecast-period start-time-local="2020-04-13T04:30:05+10:00" end-time-local="2020-04-13T04:30:05+10:00" start-time-utc="2020-04-12T18:30:05Z" end-time-utc="2020-04-12T18:30:05Z">
+                <text type="synoptic_situation">A high pressure system over the Bight is extending a ridge across the region, and is expected to slowly move east in coming days to be over the Tasman Sea by Tuesday. This pattern is expected to bring settled conditions to New South Wales for the first half of this week. The next cold front and low pressure trough is forecast to cross the state on Thursday and Friday.</text>
+                <text type="warning_summary_footer">Details of warnings are available on the Bureau's website www.bom.gov.au, by telephone 1300-659-218* or through some TV and radio broadcasts.</text>
+                <text type="product_footer">* Calls to 1300 numbers cost around 27.5c incl. GST, higher from mobiles or public phones.</text>
+            </forecast-period>
+            <forecast-period index="0" start-time-local="2020-04-13T05:00:00+10:00" end-time-local="2020-04-14T00:00:00+10:00" start-time-utc="2020-04-12T19:00:00Z" end-time-utc="2020-04-13T14:00:00Z">
+                <text type="forecast">Dry and sunny. Patchy light morning frost about the southern and central ranges and slopes. Patchy morning fog in the east, mainly about the slopes and ranges. Daytime temperatures below average. Light and variable winds.</text>
+            </forecast-period>
+            <forecast-period index="1" start-time-local="2020-04-14T00:00:00+10:00" end-time-local="2020-04-15T00:00:00+10:00" start-time-utc="2020-04-13T14:00:00Z" end-time-utc="2020-04-14T14:00:00Z">
+                <text type="forecast">Dry and sunny. Areas of morning fog in the east. Daytime temperatures near average for most areas. Light and variable winds.</text>
+            </forecast-period>
+            <forecast-period index="2" start-time-local="2020-04-15T00:00:00+10:00" end-time-local="2020-04-16T00:00:00+10:00" start-time-utc="2020-04-14T14:00:00Z" end-time-utc="2020-04-15T14:00:00Z">
+                <text type="forecast">Dry and mostly sunny. Areas of morning fog in the east. Daytime temperatures slightly above average for most areas, particularly the far west. North to northwesterly winds, tending easterly in the northeast.</text>
+            </forecast-period>
+            <forecast-period index="3" start-time-local="2020-04-16T00:00:00+10:00" end-time-local="2020-04-17T00:00:00+10:00" start-time-utc="2020-04-15T14:00:00Z" end-time-utc="2020-04-16T14:00:00Z">
+                <text type="forecast">The chance of a shower across the far south. Dry and partly cloudy elsewhere. Areas of morning fog in the east. Daytime temperatures above average, particularly across the far west. Northwesterly winds, fresh along the southern ranges. A southwesterly change extending across the southern inland during the day.</text>
+            </forecast-period>
+        </area>
+    </forecast>
+</product>
